@@ -57,10 +57,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3')
-DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL)
-}
+DATABASE_URL = os.getenv('DATABASE_URL', '')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, engine='django.db.backends.postgresql')
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -96,7 +104,7 @@ CORS_ALLOW_CREDENTIALS = True
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'feed.authentication.CsrfExemptSessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -104,8 +112,8 @@ REST_FRAMEWORK = {
 }
 
 # Session settings for cross-origin
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax' if DEBUG else 'None'
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'Lax' if DEBUG else 'None'
+CSRF_COOKIE_SECURE = not DEBUG
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',')

@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Sum, Prefetch, Exists, OuterRef
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from collections import defaultdict
 
@@ -17,6 +19,7 @@ from .serializers import (
 )
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -38,6 +41,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -58,6 +62,7 @@ class LoginView(APIView):
         )
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
@@ -98,6 +103,7 @@ def build_comment_tree(comments):
     return roots
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -204,6 +210,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 )
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
